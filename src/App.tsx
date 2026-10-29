@@ -11,6 +11,7 @@ import { Today } from './screens/Today';
 import { Diet } from './screens/diet/Diet';
 import { DietGoals, Shakes, Shopping } from './screens/diet/DietExtras';
 import { Equipment, ExerciseDetail, History, Library, WorkoutDetail, WorkoutHome } from './screens/workout/Workout';
+import { CheckinScreen, Goals, Lifts, Measures, MetricLog, Photos, ProgressHome } from './screens/progress/Progress';
 import { LiveWorkout, SessionSummary, TodayShortcut } from './screens/workout/Live';
 
 function Placeholder({ title }: { title: string }) {
@@ -79,7 +80,13 @@ function Shell() {
           <Route path="/treino/exercicio/:id" element={<ExerciseDetail />} />
           <Route path="/treino/resumo/:id" element={<SessionSummary />} />
           <Route path="/treino/:id" element={<WorkoutDetail />} />
-          <Route path="/evolucao/*" element={<Placeholder title="Evolução" />} />
+          <Route path="/evolucao" element={<ProgressHome />} />
+          <Route path="/evolucao/medidas" element={<Measures />} />
+          <Route path="/evolucao/cargas" element={<Lifts />} />
+          <Route path="/evolucao/fotos" element={<Photos />} />
+          <Route path="/evolucao/checkin" element={<CheckinScreen />} />
+          <Route path="/evolucao/metas" element={<Goals />} />
+          <Route path="/evolucao/historico" element={<MetricLog />} />
           <Route path="/ajustes" element={<Placeholder title="Ajustes" />} />
         </Routes>
       </main>
