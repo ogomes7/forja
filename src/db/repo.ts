@@ -1,6 +1,6 @@
 import { db } from './db';
 import type {
-  BodyMetric, Checkin, EquipmentId, Exercise, Food, GoalItem, IsoDate, MealItem, MealLog, MealSlot, MealTemplate, Photo, PhotoPose, Profile, Schedule, SetLog, WorkoutId, WorkoutSession, WorkoutTemplate,
+  BodyMetric, Checkin, EquipmentId, Exercise, Food, GoalItem, IsoDate, MacroTargets, MealItem, MealLog, MealSlot, MealTemplate, Photo, PhotoPose, Profile, Schedule, SetLog, WorkoutId, WorkoutSession, WorkoutTemplate,
 } from './types';
 import { FOODS } from '@/seed/foods';
 import { EQUIPMENT, EXERCISES } from '@/seed/exercises';
@@ -133,29 +133,41 @@ export async function copyDay(fromWeekday: number, toWeekdays: number[]) {
   });
 }
 
-function roundQty(qty: number, unit: Food['unit']) {
+function roundQty(qty: number, unit: Food['unit'], wholeUnits = false) {
   if (unit === 'g' || unit === 'ml') return Math.max(10, Math.round(qty / 10) * 10);
+  if (wholeUnits) return Math.max(1, Math.round(qty));
   return Math.max(0.5, Math.round(qty * 2) / 2);
 }
 
-/** Escala as porções de carboidratos, gorduras, frutas e laticínios de cada dia para chegar nas kcal-alvo. */
-export async function scaleWeekToTarget(targetKcal: number) {
+type MacroKey = 'kcal' | 'protein' | 'fat';
+
+/** Escala, num dia, os itens dos grupos indicados para que o macro `key` chegue ao alvo. */
+function scaleGroups(day: MealTemplate[], foods: Map<string, Food>, groups: Set<string>, key: MacroKey, target: number, min: number, max: number) {
+  const inGroup = (i: MealItem) => groups.has(foods.get(i.foodId)?.group ?? '');
+  const total = day.reduce((s, m) => s + mealMacros(m.items, foods)[key], 0);
+  const variable = day.reduce((s, m) => s + mealMacros(m.items.filter(inGroup), foods)[key], 0);
+  if (variable <= 0) return;
+  const factor = Math.max(min, Math.min(max, (target - (total - variable)) / variable));
+  for (const m of day) {
+    m.items = m.items.map((i) => {
+      const f = foods.get(i.foodId);
+      return f && inGroup(i) ? { ...i, qty: roundQty(i.qty * factor, f.unit, f.group === 'proteina') } : i;
+    });
+  }
+}
+
+/**
+ * Ajusta as porções de cada dia às metas, em etapas:
+ * proteínas/laticínios → proteína; gorduras → gordura; carboidratos/frutas → calorias.
+ */
+export async function scaleWeekToTarget(t: Pick<MacroTargets, 'kcal' | 'protein' | 'fat'>) {
   const foods = await foodsMap();
-  const scalable = new Set(['carboidrato', 'gordura', 'fruta', 'laticinio']);
   const all = await db.meals.toArray();
   for (let wd = 0; wd < 7; wd++) {
     const day = all.filter((m) => m.weekday === wd);
-    const total = day.reduce((s, m) => s + mealMacros(m.items, foods).kcal, 0);
-    const fixed = day.reduce((s, m) => s + mealMacros(m.items.filter((i) => !scalable.has(foods.get(i.foodId)?.group ?? '')), foods).kcal, 0);
-    const variable = total - fixed;
-    if (variable <= 0) continue;
-    const factor = Math.max(0.4, Math.min(2.5, (targetKcal - fixed) / variable));
-    for (const m of day) {
-      m.items = m.items.map((i) => {
-        const f = foods.get(i.foodId);
-        return f && scalable.has(f.group) ? { ...i, qty: roundQty(i.qty * factor, f.unit) } : i;
-      });
-    }
+    scaleGroups(day, foods, new Set(['proteina', 'laticinio']), 'protein', t.protein, 0.5, 1.8);
+    scaleGroups(day, foods, new Set(['gordura']), 'fat', t.fat, 0.3, 2.5);
+    scaleGroups(day, foods, new Set(['carboidrato', 'fruta']), 'kcal', t.kcal, 0.4, 2.5);
     await db.meals.bulkPut(day);
   }
 }

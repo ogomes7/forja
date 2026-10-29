@@ -60,13 +60,18 @@ describe('repositório', () => {
     expect(b).toEqual(a);
   });
 
-  it('escala o cardápio para a meta de kcal', async () => {
+  it('escala o cardápio para as metas de kcal, proteína e gordura', async () => {
     await generateWeekMenu(await getSchedule());
-    await scaleWeekToTarget(3300);
+    const target = { kcal: 2990, protein: 140, fat: 63 };
+    await scaleWeekToTarget(target);
     const foods = await foodsMap();
-    const day = await db.meals.where('weekday').equals(1).toArray();
-    const kcal = day.reduce((s, x) => s + mealMacros(x.items, foods).kcal, 0);
-    expect(Math.abs(kcal - 3300)).toBeLessThan(200);
+    for (let wd = 0; wd < 7; wd++) {
+      const day = await db.meals.where('weekday').equals(wd).toArray();
+      const m = day.reduce((s, x) => { const k = mealMacros(x.items, foods); return { kcal: s.kcal + k.kcal, protein: s.protein + k.protein, fat: s.fat + k.fat }; }, { kcal: 0, protein: 0, fat: 0 });
+      expect(Math.abs(m.kcal - target.kcal), `kcal dia ${wd}: ${m.kcal}`).toBeLessThan(200);
+      expect(Math.abs(m.protein - target.protein), `prot dia ${wd}: ${m.protein}`).toBeLessThan(30);
+      expect(m.fat, `gord dia ${wd}`).toBeLessThan(target.fat + 25);
+    }
   });
 
   it('substituição equivalente', async () => {

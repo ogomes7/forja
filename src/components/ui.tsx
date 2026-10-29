@@ -56,6 +56,18 @@ export function PageHeader({ title, subtitle, right }: { title: string; subtitle
   );
 }
 
+export function BackHeader({ title, back, right }: { title: string; back: string; right?: ReactNode }) {
+  return (
+    <header className="pt-safe flex items-center gap-1 pb-3">
+      <a href={`#${back}`} aria-label="Voltar" className="press -ml-2 flex h-11 w-11 items-center justify-center rounded-full text-accent">
+        <Icon name="left" size={26} />
+      </a>
+      <h1 className="min-w-0 flex-1 truncate text-[22px] font-bold">{title}</h1>
+      {right}
+    </header>
+  );
+}
+
 export function SectionTitle({ children, right }: { children: ReactNode; right?: ReactNode }) {
   return (
     <div className="mt-5 mb-2 flex items-center justify-between px-1">
