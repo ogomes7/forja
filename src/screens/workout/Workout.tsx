@@ -84,7 +84,7 @@ export function WorkoutHome() {
         )}
       </Card>
 
-      <nav className="-mx-1 mt-3 flex gap-2 overflow-x-auto px-1 pb-1" aria-label="Atalhos do treino">
+      <nav className="-mx-1 mt-3 flex gap-2 no-scrollbar overflow-x-auto px-1 pb-1" aria-label="Atalhos do treino">
         <Chip to="/treino/equipamentos" icon="dumbbell" label="Equipamentos" />
         <Chip to="/treino/biblioteca" icon="list" label="Exercícios" />
         <Chip to="/treino/historico" icon="clock" label="Histórico" />

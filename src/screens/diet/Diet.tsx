@@ -35,7 +35,7 @@ export function Diet() {
     <>
       <PageHeader title="Dieta" subtitle={`Meta ${t.kcal.toLocaleString('pt-BR')} kcal · ${t.protein} g proteína`} />
 
-      <nav className="-mx-1 mb-3 flex gap-2 overflow-x-auto px-1 pb-1" aria-label="Atalhos da dieta">
+      <nav className="-mx-1 mb-3 flex gap-2 no-scrollbar overflow-x-auto px-1 pb-1" aria-label="Atalhos da dieta">
         <Chip to="/dieta/metas" icon="target" label="Metas" />
         <Chip to="/dieta/vitaminas" icon="shake" label="Vitaminas e dicas" />
         <Chip to="/dieta/compras" icon="cart" label="Lista de compras" />
