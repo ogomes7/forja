@@ -5,8 +5,13 @@ import tailwindcss from '@tailwindcss/vite';
 import { VitePWA } from 'vite-plugin-pwa';
 import { fileURLToPath, URL } from 'node:url';
 
+import pkg from './package.json' with { type: 'json' };
+
 export default defineConfig({
+  define: { __APP_VERSION__: JSON.stringify(pkg.version) },
   base: './',
+  // Tudo fica em cache offline; um bundle único (~250 kB gzip) é aceitável.
+  build: { chunkSizeWarningLimit: 1000 },
   optimizeDeps: {
     include: ['react', 'react-dom', 'react-router-dom', 'zustand', 'dexie', 'dexie-react-hooks', 'recharts'],
   },
@@ -40,6 +45,7 @@ export default defineConfig({
       workbox: {
         globPatterns: ['**/*.{js,css,html,svg,png,jpg,webmanifest}'],
         maximumFileSizeToCacheInBytes: 4 * 1024 * 1024,
+        clientsClaim: true,
       },
     }),
   ],

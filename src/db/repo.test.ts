@@ -2,7 +2,7 @@ import 'fake-indexeddb/auto';
 import { beforeEach, describe, expect, it } from 'vitest';
 import { db } from './db';
 import {
-  copyDay, ensureSeeded, equivalentQty, finishSession, foodsMap, generateWeekMenu, getSchedule, lastSetsFor, logSet, resolveExercise, saveSchedule, scaleWeekToTarget, startSession,
+  copyDay, ensureSeeded, equivalentQty, exportBackup, importBackup, saveMetric, finishSession, foodsMap, generateWeekMenu, getSchedule, lastSetsFor, logSet, resolveExercise, saveSchedule, scaleWeekToTarget, startSession,
 } from './repo';
 import { mealMacros } from '@/domain/nutrition';
 
@@ -84,6 +84,18 @@ describe('repositório', () => {
     const map = new Map((await db.exercises.toArray()).map((e) => [e.id, e]));
     expect(resolveExercise('puxada-frente', map, ['barra_fixa'])?.id).toBe('barra-fixa');
     expect(resolveExercise('leg-press', map, ['halteres'])?.id).toBe('agachamento-goblet');
+  });
+
+  it('backup: exporta e reimporta os dados', async () => {
+    await generateWeekMenu(await getSchedule());
+    await saveMetric({ date: '2026-10-29', weight: 70.4, waist: 80 });
+    const backup = JSON.parse(JSON.stringify(await exportBackup(false)));
+    await db.delete();
+    await db.open();
+    await importBackup(backup);
+    expect(await db.meals.count()).toBe(42);
+    expect((await db.metrics.toArray())[0]).toMatchObject({ weight: 70.4, waist: 80 });
+    await expect(importBackup({ app: 'outro' })).rejects.toThrow();
   });
 
   it('registra treino, volume, recordes e última carga', async () => {

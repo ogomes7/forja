@@ -2,7 +2,9 @@ import { useEffect, useState } from 'react';
 import { HashRouter, Route, Routes, useLocation } from 'react-router-dom';
 import { TabBar } from './components/TabBar';
 import { Icon } from './components/Icon';
-import { PageHeader, Card } from './components/ui';
+import { Button } from './components/ui';
+import { useRegisterSW } from 'virtual:pwa-register/react';
+import { Settings } from './screens/Settings';
 import { ensureSeeded } from './db/repo';
 import { useProfile } from './db/hooks';
 import { useUi } from './store';
@@ -14,15 +16,6 @@ import { Equipment, ExerciseDetail, History, Library, WorkoutDetail, WorkoutHome
 import { CheckinScreen, Goals, Lifts, Measures, MetricLog, Photos, ProgressHome } from './screens/progress/Progress';
 import { LiveWorkout, SessionSummary, TodayShortcut } from './screens/workout/Live';
 
-function Placeholder({ title }: { title: string }) {
-  return (
-    <>
-      <PageHeader title={title} />
-      <Card>Em construção.</Card>
-    </>
-  );
-}
-
 function Toast() {
   const toast = useUi((s) => s.toast);
   if (!toast) return null;
@@ -31,6 +24,24 @@ function Toast() {
       <div className="glass fade-up mt-2 flex items-center gap-2 rounded-full px-4 py-2.5 text-[14px] font-semibold" style={{ background: 'var(--glass-strong)' }}>
         {toast.icon && <span className="text-accent"><Icon name={toast.icon} size={18} /></span>}
         {toast.text}
+      </div>
+    </div>
+  );
+}
+
+/** Aviso discreto de nova versão (service worker em modo "prompt"). */
+function UpdatePrompt() {
+  const {
+    needRefresh: [needRefresh, setNeedRefresh],
+    updateServiceWorker,
+  } = useRegisterSW();
+  if (!needRefresh) return null;
+  return (
+    <div className="pt-safe fixed inset-x-0 top-0 z-[65] flex justify-center px-4">
+      <div className="glass fade-up mt-2 flex items-center gap-2 rounded-full py-1.5 pr-1.5 pl-4 text-[14px]" style={{ background: 'var(--glass-strong)' }}>
+        Nova versão disponível
+        <Button size="sm" variant="primary" onClick={() => updateServiceWorker(true)}>Atualizar</Button>
+        <Button size="sm" variant="ghost" onClick={() => setNeedRefresh(false)}>Depois</Button>
       </div>
     </div>
   );
@@ -87,7 +98,7 @@ function Shell() {
           <Route path="/evolucao/checkin" element={<CheckinScreen />} />
           <Route path="/evolucao/metas" element={<Goals />} />
           <Route path="/evolucao/historico" element={<MetricLog />} />
-          <Route path="/ajustes" element={<Placeholder title="Ajustes" />} />
+          <Route path="/ajustes" element={<Settings />} />
         </Routes>
       </main>
       {!hideTabs && <TabBar />}
@@ -106,6 +117,7 @@ export default function App() {
     <HashRouter>
       <div className="mesh" aria-hidden="true" />
       <Toast />
+      <UpdatePrompt />
       {ready && <Shell />}
     </HashRouter>
   );
