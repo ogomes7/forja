@@ -10,6 +10,8 @@ import { Onboarding } from './screens/Onboarding';
 import { Today } from './screens/Today';
 import { Diet } from './screens/diet/Diet';
 import { DietGoals, Shakes, Shopping } from './screens/diet/DietExtras';
+import { Equipment, ExerciseDetail, History, Library, WorkoutDetail, WorkoutHome } from './screens/workout/Workout';
+import { LiveWorkout, SessionSummary, TodayShortcut } from './screens/workout/Live';
 
 function Placeholder({ title }: { title: string }) {
   return (
@@ -68,7 +70,15 @@ function Shell() {
           <Route path="/dieta/metas" element={<DietGoals />} />
           <Route path="/dieta/vitaminas" element={<Shakes />} />
           <Route path="/dieta/compras" element={<Shopping />} />
-          <Route path="/treino/*" element={<Placeholder title="Treino" />} />
+          <Route path="/treino" element={<WorkoutHome />} />
+          <Route path="/treino/ao-vivo" element={<LiveWorkout />} />
+          <Route path="/treino/hoje" element={<TodayShortcut />} />
+          <Route path="/treino/equipamentos" element={<Equipment />} />
+          <Route path="/treino/biblioteca" element={<Library />} />
+          <Route path="/treino/historico" element={<History />} />
+          <Route path="/treino/exercicio/:id" element={<ExerciseDetail />} />
+          <Route path="/treino/resumo/:id" element={<SessionSummary />} />
+          <Route path="/treino/:id" element={<WorkoutDetail />} />
           <Route path="/evolucao/*" element={<Placeholder title="Evolução" />} />
           <Route path="/ajustes" element={<Placeholder title="Ajustes" />} />
         </Routes>
