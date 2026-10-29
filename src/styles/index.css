@@ -1,0 +1,226 @@
+@import 'tailwindcss';
+
+/* ---------------------------------------------------------------
+   Design tokens — Liquid Glass
+   Cor de destaque: verde-água. Cores semânticas discretas para macros.
+---------------------------------------------------------------- */
+:root {
+  color-scheme: light dark;
+  --bg: #eef5f4;
+  --bg-mesh-1: #bfe9e2;
+  --bg-mesh-2: #d9e4f7;
+  --bg-mesh-3: #f4e6d6;
+  --text: #0e1a1c;
+  --text-2: #3d4f52;
+  --text-3: #66787b;
+  --glass: rgba(255, 255, 255, 0.58);
+  --glass-strong: rgba(255, 255, 255, 0.8);
+  --glass-border: rgba(255, 255, 255, 0.75);
+  --glass-edge: rgba(14, 26, 28, 0.08);
+  --glass-shadow: 0 8px 28px rgba(16, 40, 44, 0.1), 0 1px 2px rgba(16, 40, 44, 0.06);
+  --accent: #0d9488;
+  --accent-ink: #ffffff;
+  --accent-soft: rgba(13, 148, 136, 0.14);
+  --kcal: #d97706;
+  --prot: #2563eb;
+  --carb: #0d9488;
+  --fat: #c026d3;
+  --water: #0284c7;
+  --ok: #16a34a;
+  --warn: #b45309;
+  --danger: #dc2626;
+  --blur: 22px;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme='light']) {
+    --bg: #0b1416;
+    --bg-mesh-1: #0f3a37;
+    --bg-mesh-2: #16233f;
+    --bg-mesh-3: #2a1f1a;
+    --text: #edf5f4;
+    --text-2: #b6c6c8;
+    --text-3: #8a9c9f;
+    --glass: rgba(30, 42, 45, 0.55);
+    --glass-strong: rgba(30, 42, 45, 0.82);
+    --glass-border: rgba(255, 255, 255, 0.12);
+    --glass-edge: rgba(255, 255, 255, 0.06);
+    --glass-shadow: 0 10px 30px rgba(0, 0, 0, 0.35);
+    --accent: #2dd4bf;
+    --accent-ink: #062523;
+    --accent-soft: rgba(45, 212, 191, 0.16);
+    --kcal: #fbbf24;
+    --prot: #60a5fa;
+    --carb: #2dd4bf;
+    --fat: #e879f9;
+    --water: #38bdf8;
+    --ok: #4ade80;
+    --warn: #fbbf24;
+    --danger: #f87171;
+  }
+}
+
+:root[data-theme='dark'] {
+  --bg: #0b1416;
+  --bg-mesh-1: #0f3a37;
+  --bg-mesh-2: #16233f;
+  --bg-mesh-3: #2a1f1a;
+  --text: #edf5f4;
+  --text-2: #b6c6c8;
+  --text-3: #8a9c9f;
+  --glass: rgba(30, 42, 45, 0.55);
+  --glass-strong: rgba(30, 42, 45, 0.82);
+  --glass-border: rgba(255, 255, 255, 0.12);
+  --glass-edge: rgba(255, 255, 255, 0.06);
+  --glass-shadow: 0 10px 30px rgba(0, 0, 0, 0.35);
+  --accent: #2dd4bf;
+  --accent-ink: #062523;
+  --accent-soft: rgba(45, 212, 191, 0.16);
+  --kcal: #fbbf24;
+  --prot: #60a5fa;
+  --carb: #2dd4bf;
+  --fat: #e879f9;
+  --water: #38bdf8;
+  --ok: #4ade80;
+  --warn: #fbbf24;
+  --danger: #f87171;
+}
+
+/* Fallback sem blur (Ajustes) ou sem suporte: vidro vira superfície sólida. */
+:root[data-blur='off'] {
+  --glass: var(--glass-strong);
+}
+
+@theme inline {
+  --color-bg: var(--bg);
+  --color-ink: var(--text);
+  --color-ink-2: var(--text-2);
+  --color-ink-3: var(--text-3);
+  --color-accent: var(--accent);
+  --color-accent-ink: var(--accent-ink);
+  --color-accent-soft: var(--accent-soft);
+  --color-kcal: var(--kcal);
+  --color-prot: var(--prot);
+  --color-carb: var(--carb);
+  --color-fat: var(--fat);
+  --color-water: var(--water);
+  --color-ok: var(--ok);
+  --color-warn: var(--warn);
+  --color-danger: var(--danger);
+  --font-sans: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'SF Pro Display', system-ui, 'Segoe UI', Roboto, sans-serif;
+}
+
+html {
+  -webkit-text-size-adjust: 100%;
+  -webkit-tap-highlight-color: transparent;
+}
+
+body {
+  margin: 0;
+  min-height: 100dvh;
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font-sans);
+  font-size: 1rem;
+  line-height: 1.4;
+  overscroll-behavior-y: none;
+}
+
+/* Malha de cor suave atrás do vidro */
+.mesh {
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  background:
+    radial-gradient(60% 45% at 10% 0%, var(--bg-mesh-1) 0%, transparent 70%),
+    radial-gradient(55% 40% at 100% 20%, var(--bg-mesh-2) 0%, transparent 70%),
+    radial-gradient(70% 50% at 50% 100%, var(--bg-mesh-3) 0%, transparent 70%),
+    var(--bg);
+}
+
+.glass {
+  background: var(--glass);
+  border: 1px solid var(--glass-border);
+  box-shadow: var(--glass-shadow), inset 0 1px 0 rgba(255, 255, 255, 0.25);
+  -webkit-backdrop-filter: blur(var(--blur)) saturate(170%);
+  backdrop-filter: blur(var(--blur)) saturate(170%);
+}
+:root[data-blur='off'] .glass {
+  -webkit-backdrop-filter: none;
+  backdrop-filter: none;
+}
+@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+  .glass {
+    background: var(--glass-strong);
+  }
+}
+
+.pt-safe {
+  padding-top: max(env(safe-area-inset-top), 12px);
+}
+.pb-safe {
+  padding-bottom: max(env(safe-area-inset-bottom), 10px);
+}
+
+.tabular {
+  font-variant-numeric: tabular-nums;
+}
+
+/* Feedback de toque e transições curtas */
+.press {
+  transition: transform 150ms ease, background-color 200ms ease, opacity 200ms ease;
+}
+.press:active {
+  transform: scale(0.97);
+}
+
+@keyframes pop {
+  0% { transform: scale(0.6); opacity: 0; }
+  60% { transform: scale(1.12); opacity: 1; }
+  100% { transform: scale(1); }
+}
+.pop {
+  animation: pop 220ms ease-out;
+}
+
+@keyframes fade-up {
+  from { opacity: 0; transform: translateY(6px); }
+  to { opacity: 1; transform: none; }
+}
+.fade-up {
+  animation: fade-up 220ms ease-out both;
+}
+
+/* Animação dos exercícios: alterna 2 quadros */
+@keyframes frame-swap {
+  0%, 45% { opacity: 1; }
+  55%, 100% { opacity: 0; }
+}
+.frame-a {
+  animation: frame-swap 1.6s ease-in-out infinite alternate;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+  }
+  .frame-a {
+    animation: none;
+  }
+}
+
+input, select, textarea, button {
+  font: inherit;
+  color: inherit;
+}
+input[type='number']::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+}
+
+:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+  border-radius: 10px;
+}
